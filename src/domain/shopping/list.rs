@@ -7,6 +7,16 @@ pub struct List {
     name: String,
 }
 
+impl List {
+    fn create(&self, event: CustomerCreateList) -> Result<Vec<ListEvent>, AggregateError> {
+        let event = ListEvent::CustomerCreatedList(CustomerCreatedList {
+            id: event.id,
+            name: event.name,
+        });
+        Ok(vec![event])
+    }
+}
+
 impl Aggregate for List {
     fn aggregate_type() -> &'static str {
         "shopping.list"
@@ -40,25 +50,29 @@ pub struct CustomerRenamedList {
     new: String,
 }
 
-impl DomainEvent<List> for CustomerCreatedList {
-    fn apply(self, aggregate: &mut List) {
-        aggregate.id = self.id;
-        aggregate.name = self.name
-    }
-}
-
-impl DomainEvent<List> for CustomerRenamedList {
-    fn apply(self, aggregate: &mut List) {
-        aggregate.name = self.new;
-    }
-}
-
 impl DomainEvent<List> for ListEvent {
     fn apply(self, aggregate: &mut List) {
         match self {
-            ListEvent::CustomerCreatedList(e) => e.apply(aggregate),
-            ListEvent::CustomerRenamedList(e) => e.apply(aggregate),
+            ListEvent::CustomerCreatedList(e) => aggregate.apply(e),
+            ListEvent::CustomerRenamedList(e) => aggregate.apply(e),
         }
+    }
+}
+
+trait ListEventApply<E> {
+    fn apply(&mut self, event: E);
+}
+
+impl ListEventApply<CustomerCreatedList> for List {
+    fn apply(&mut self, event: CustomerCreatedList) {
+        self.id = event.id;
+        self.name = event.name
+    }
+}
+
+impl ListEventApply<CustomerRenamedList> for List {
+    fn apply(&mut self, event: CustomerRenamedList) {
+        self.name = event.new
     }
 }
 
@@ -70,11 +84,7 @@ pub struct CustomerCreateList {
 
 impl Command<List, ListEvent> for CustomerCreateList {
     fn handle(self, list: &List) -> Result<Vec<ListEvent>, AggregateError> {
-        let event = ListEvent::CustomerCreatedList(CustomerCreatedList {
-            id: self.id,
-            name: self.name,
-        });
-        Ok(vec![event])
+        list.create(self)
     }
 }
 
