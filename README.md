@@ -12,3 +12,6 @@ An useless shopping list implementation using rust and event sourcing.
 [] Generate shopping list by recipe
 [] Nutrients dashboard
 [] Specific diets help
+[] Share list and receipes
+[] Show shopping list with recipes information somehow (ingredients
+associated/grouped by recipe)
