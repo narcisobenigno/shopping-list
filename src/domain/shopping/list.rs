@@ -115,18 +115,18 @@ mod tests {
 
     use crate::domain::shopping;
 
-    type ShoppingListSuite = TestFramework<shopping::list::List, shopping::list::ListEvent>;
+    type ShoppingListSuite = TestFramework<shopping::List, shopping::ListEvent>;
 
     #[test]
     fn it_creates_a_list() {
         ShoppingListSuite::default()
             .given_no_previous_events()
-            .when(shopping::list::CustomerCreateList {
+            .when(shopping::CustomerCreateList {
                 id: "list-uuid-1".to_string(),
                 name: "List name".to_string(),
             })
-            .then_expect_events(vec![shopping::list::ListEvent::CustomerCreatedList(
-                shopping::list::CustomerCreatedList {
+            .then_expect_events(vec![shopping::ListEvent::CustomerCreatedList(
+                shopping::CustomerCreatedList {
                     id: "list-uuid-1".to_string(),
                     name: "List name".to_string(),
                 },
@@ -136,17 +136,17 @@ mod tests {
     #[test]
     fn it_renames_a_list() {
         ShoppingListSuite::default()
-            .given(vec![shopping::list::ListEvent::CustomerCreatedList(
-                shopping::list::CustomerCreatedList {
+            .given(vec![shopping::ListEvent::CustomerCreatedList(
+                shopping::CustomerCreatedList {
                     id: "list-uuid-1".to_string(),
                     name: "List name".to_string(),
                 },
             )])
-            .when(shopping::list::CustomerRenameList {
+            .when(shopping::CustomerRenameList {
                 new: "New list name".to_string(),
             })
-            .then_expect_events(vec![shopping::list::ListEvent::CustomerRenamedList(
-                shopping::list::CustomerRenamedList {
+            .then_expect_events(vec![shopping::ListEvent::CustomerRenamedList(
+                shopping::CustomerRenamedList {
                     former: "List name".to_string(),
                     new: "New list name".to_string(),
                 },
@@ -156,13 +156,13 @@ mod tests {
     #[test]
     fn it_does_not_rename_when_got_same_name() {
         ShoppingListSuite::default()
-            .given(vec![shopping::list::ListEvent::CustomerCreatedList(
-                shopping::list::CustomerCreatedList {
+            .given(vec![shopping::ListEvent::CustomerCreatedList(
+                shopping::CustomerCreatedList {
                     id: "list-uuid-1".to_string(),
                     name: "List name".to_string(),
                 },
             )])
-            .when(shopping::list::CustomerRenameList {
+            .when(shopping::CustomerRenameList {
                 new: "List name".to_string(),
             })
             .then_expect_events(vec![]);
